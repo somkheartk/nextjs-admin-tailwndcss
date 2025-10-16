@@ -47,9 +47,18 @@ CREATE TABLE user_role_assignments (
 
 ## Setup Instructions
 
-1. **Create the database tables** using the SQL commands above in your Vercel Postgres dashboard or your database client.
+1. **Create the database tables** using one of these methods:
+   
+   **Option A: Run the SQL migration script**
+   ```bash
+   # In your database client or Vercel Postgres dashboard
+   # Execute the contents of database-migration.sql
+   ```
+   
+   **Option B: Manually create tables** using the SQL commands above in your Vercel Postgres dashboard or your database client.
 
-2. **Seed the menu and permission data** by visiting:
+2. **Seed the menu and permission data** (if not using the SQL migration script):
+   Visit:
    ```
    http://localhost:3000/api/seed-menu
    ```

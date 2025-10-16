@@ -9,9 +9,11 @@ import {
   integer,
   timestamp,
   pgEnum,
-  serial
+  serial,
+  boolean
 } from 'drizzle-orm/pg-core';
-import { count, eq, ilike } from 'drizzle-orm';
+import { count, eq, ilike, inArray } from 'drizzle-orm';
+import { asc } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 
 export const db = drizzle(neon(process.env.POSTGRES_URL!));
@@ -69,4 +71,86 @@ export async function getProducts(
 
 export async function deleteProductById(id: number) {
   await db.delete(products).where(eq(products.id, id));
+}
+
+// User roles table
+export const userRoles = pgTable('user_roles', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull().unique(),
+  description: text('description')
+});
+
+export type SelectUserRole = typeof userRoles.$inferSelect;
+
+// Menu items table
+export const menuItems = pgTable('menu_items', {
+  id: serial('id').primaryKey(),
+  label: text('label').notNull(),
+  href: text('href').notNull(),
+  icon: text('icon').notNull(),
+  order: integer('order').notNull().default(0),
+  isActive: boolean('is_active').notNull().default(true)
+});
+
+export type SelectMenuItem = typeof menuItems.$inferSelect;
+
+// Role-menu permissions table
+export const roleMenuPermissions = pgTable('role_menu_permissions', {
+  id: serial('id').primaryKey(),
+  roleId: integer('role_id')
+    .notNull()
+    .references(() => userRoles.id),
+  menuItemId: integer('menu_item_id')
+    .notNull()
+    .references(() => menuItems.id)
+});
+
+// User-role assignments table
+export const userRoleAssignments = pgTable('user_role_assignments', {
+  id: serial('id').primaryKey(),
+  userEmail: text('user_email').notNull(),
+  roleId: integer('role_id')
+    .notNull()
+    .references(() => userRoles.id)
+});
+
+export type SelectUserRoleAssignment = typeof userRoleAssignments.$inferSelect;
+
+// Function to get menu items for a user based on their role
+export async function getMenuItemsForUser(
+  userEmail: string
+): Promise<SelectMenuItem[]> {
+  // Get user's role assignments
+  const userRoleAssignment = await db
+    .select()
+    .from(userRoleAssignments)
+    .where(eq(userRoleAssignments.userEmail, userEmail))
+    .limit(1);
+
+  if (userRoleAssignment.length === 0) {
+    return [];
+  }
+
+  const roleId = userRoleAssignment[0].roleId;
+
+  // Get menu item IDs for this role
+  const permissions = await db
+    .select()
+    .from(roleMenuPermissions)
+    .where(eq(roleMenuPermissions.roleId, roleId));
+
+  if (permissions.length === 0) {
+    return [];
+  }
+
+  const menuItemIds = permissions.map((p) => p.menuItemId);
+
+  // Get the actual menu items
+  const items = await db
+    .select()
+    .from(menuItems)
+    .where(inArray(menuItems.id, menuItemIds))
+    .orderBy(asc(menuItems.order));
+
+  return items.filter((item) => item.isActive);
 }

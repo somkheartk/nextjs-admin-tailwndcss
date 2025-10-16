@@ -74,7 +74,11 @@ function DesktopNav({ menuItems }: { menuItems: SelectMenuItem[] }) {
   // Helper function to get icon component by name
   const getIconComponent = (iconName: string) => {
     const Icon = (LucideIcons as any)[iconName];
-    return Icon ? <Icon className="h-5 w-5" /> : <Package className="h-5 w-5" />;
+    return Icon ? (
+      <Icon className="h-5 w-5" />
+    ) : (
+      <Package className="h-5 w-5" />
+    );
   };
 
   return (
@@ -116,7 +120,11 @@ function MobileNav({ menuItems }: { menuItems: SelectMenuItem[] }) {
   // Helper function to get icon component by name
   const getIconComponent = (iconName: string) => {
     const Icon = (LucideIcons as any)[iconName];
-    return Icon ? <Icon className="h-5 w-5" /> : <Package className="h-5 w-5" />;
+    return Icon ? (
+      <Icon className="h-5 w-5" />
+    ) : (
+      <Package className="h-5 w-5" />
+    );
   };
 
   return (

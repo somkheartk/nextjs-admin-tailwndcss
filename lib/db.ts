@@ -16,7 +16,25 @@ import { count, eq, ilike, inArray } from 'drizzle-orm';
 import { asc } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 
-export const db = drizzle(neon(process.env.POSTGRES_URL!));
+// Lazy initialization of database connection
+let _db: ReturnType<typeof drizzle> | null = null;
+
+function getDb() {
+  if (!_db) {
+    const connectionString = process.env.POSTGRES_URL;
+    if (!connectionString) {
+      throw new Error('POSTGRES_URL environment variable is not set');
+    }
+    _db = drizzle(neon(connectionString));
+  }
+  return _db;
+}
+
+export const db = new Proxy({} as ReturnType<typeof drizzle>, {
+  get(_target, prop) {
+    return getDb()[prop as keyof ReturnType<typeof drizzle>];
+  }
+});
 
 export const statusEnum = pgEnum('status', ['active', 'inactive', 'archived']);
 

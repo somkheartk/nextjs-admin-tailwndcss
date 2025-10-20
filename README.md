@@ -32,11 +32,21 @@ This template uses the new Next.js App Router. This includes support for enhance
 
 ## Getting Started
 
-During the deployment, Vercel will prompt you to create a new Postgres database. This will add the necessary environment variables to your project.
+### Deploying to Vercel
 
-**The application now automatically creates tables and seeds initial data on first run!** You no longer need to manually run SQL scripts or seed endpoints.
+This application is optimized for seamless deployment on Vercel:
 
-### Environment Variables
+1. **Deploy to Vercel** - Click the "Deploy" button or import your GitHub repository
+2. **Add Postgres Database** - During deployment, Vercel will prompt you to create a new Postgres database
+3. **Configure Auth** - Set up your GitHub OAuth application and add the required environment variables:
+   - `AUTH_GITHUB_ID` - Your GitHub OAuth App Client ID
+   - `AUTH_GITHUB_SECRET` - Your GitHub OAuth App Client Secret
+   - `AUTH_SECRET` - Generate at [generate-secret.vercel.app/32](https://generate-secret.vercel.app/32)
+4. **Deploy** - Complete the deployment and your app will be live!
+
+**The application now automatically creates tables and seeds initial data on first run!** You no longer need to manually run SQL scripts or seed endpoints. Database initialization happens automatically on the first request, not during build time, ensuring reliable deployments.
+
+### Local Development
 
 Copy the `.env.example` file to `.env` and update the values. Follow the instructions in the `.env.example` file to set up your GitHub OAuth application.
 
@@ -48,21 +58,22 @@ vercel env pull
 
 Finally, run the following commands to start the development server:
 
-```
-pnpm install
-pnpm dev
+```bash
+npm install
+npm run dev
 ```
 
 You should now be able to access the application at http://localhost:3000.
 
 ### What Happens Automatically
 
-When you first run the application:
+When you first access the application (either locally or on Vercel):
 
-1. **Database tables are created automatically** - The system checks if required tables exist and creates them if needed
-2. **Initial data is seeded automatically** - Default roles (admin, manager, user) and menu items are populated
+1. **Database tables are created automatically** - On the first request that requires database access, the system checks if required tables exist and creates them if needed
+2. **Initial data is seeded automatically** - Default roles (admin, manager, user) and menu items are populated on first database access
 3. **Users are auto-assigned a role** - New users are automatically assigned the "user" role on first login
-4. **No manual setup required** - Just configure your database connection and OAuth, then run!
+4. **No manual setup required** - Just configure your database connection and OAuth, then deploy or run!
+5. **Build-time safe** - Database initialization only happens at runtime, never during the build process, ensuring reliable Vercel deployments
 
 ### Optional: Manual Role Assignment
 

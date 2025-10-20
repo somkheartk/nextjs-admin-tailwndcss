@@ -8,6 +8,9 @@ import {
 } from '@/components/ui/card';
 import { signIn } from '@/lib/auth';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export default function LoginPage() {
   return (
     <div className="min-h-screen flex justify-center items-start md:items-center p-8">

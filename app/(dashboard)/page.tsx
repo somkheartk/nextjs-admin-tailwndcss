@@ -4,6 +4,9 @@ import { Button } from '@/components/ui/button';
 import { ProductsTable } from './products-table';
 import { getProducts } from '@/lib/db';
 
+// Force dynamic rendering to prevent static generation during build
+export const dynamic = 'force-dynamic';
+
 export default async function ProductsPage(props: {
   searchParams: Promise<{ q: string; offset: string }>;
 }) {

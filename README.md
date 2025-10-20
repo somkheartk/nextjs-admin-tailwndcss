@@ -27,8 +27,26 @@ This is a starter template using the following stack:
 - **Dynamic Menu System**: Menu items are loaded from the database and filtered based on user roles and permissions
 - **Role-Based Access Control**: Users can be assigned different roles (admin, manager, user) with different menu access
 - **Secure Server-Side Filtering**: Menu authorization happens on the server for better security
+- **Mock Data Mode**: Work on the frontend without database setup - perfect for UI development and prototyping
 
 This template uses the new Next.js App Router. This includes support for enhanced layouts, colocation of components, tests, and styles, component-level data fetching, and more.
+
+## Mock Data Mode
+
+The application now supports a **mock data mode** that allows you to run and develop the application without setting up a database. This is perfect for:
+
+- Frontend development and prototyping
+- UI/UX testing without database dependencies
+- Quick demos and presentations
+- Learning the application structure
+
+When `POSTGRES_URL` is not configured in your `.env` file, the application automatically uses mock data for:
+- **Products**: 12 sample products with images, prices, and stock information
+- **Menu Items**: All 5 default menu items (Dashboard, Orders, Products, Customers, Analytics)
+- **Pagination**: Fully functional pagination with mock data
+- **Search**: Search functionality works with mock product names
+
+To use mock data mode, simply leave `POSTGRES_URL` commented out or unset in your `.env` file.
 
 ## Getting Started
 
@@ -47,6 +65,37 @@ This application is optimized for seamless deployment on Vercel:
 **The application now automatically creates tables and seeds initial data on first run!** You no longer need to manually run SQL scripts or seed endpoints. Database initialization happens automatically on the first request, not during build time, ensuring reliable deployments.
 
 ### Local Development
+
+#### Option 1: Quick Start with Mock Data (No Database Required)
+
+For frontend development without database setup:
+
+1. Copy the `.env.example` file to `.env`:
+```bash
+cp .env.example .env
+```
+
+2. Update the `.env` file with minimal configuration (leave `POSTGRES_URL` commented out):
+```bash
+# POSTGRES_URL=  # Leave this commented out to use mock data
+
+NEXTAUTH_URL=http://localhost:3000
+AUTH_SECRET=your-secret-here  # Generate at https://generate-secret.vercel.app/32
+AUTH_GITHUB_ID=your-github-id
+AUTH_GITHUB_SECRET=your-github-secret
+```
+
+3. Install dependencies and start the development server:
+```bash
+npm install
+npm run dev
+```
+
+The application will automatically use **mock data** for products and menu items, allowing you to see and work with the frontend without setting up a database.
+
+#### Option 2: Full Setup with Database
+
+For production or full-featured development:
 
 Copy the `.env.example` file to `.env` and update the values. Follow the instructions in the `.env.example` file to set up your GitHub OAuth application.
 

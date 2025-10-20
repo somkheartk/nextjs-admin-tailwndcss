@@ -5,19 +5,36 @@ import { sql } from 'drizzle-orm';
 // Track initialization state to avoid repeated checks
 let _isInitialized = false;
 let _isInitializing = false;
+let _initializationPromise: Promise<void> | null = null;
 
 /**
  * Initialize database tables and seed initial data if needed.
  * This runs automatically and is idempotent - safe to call multiple times.
+ * Safe to call during runtime - will not execute during build time.
  */
 export async function initializeDatabase(): Promise<void> {
-  // Skip if already initialized or currently initializing
-  if (_isInitialized || _isInitializing) {
+  // Skip if already initialized
+  if (_isInitialized) {
     return;
   }
 
-  _isInitializing = true;
+  // If already initializing, wait for that to complete
+  if (_isInitializing && _initializationPromise) {
+    return _initializationPromise;
+  }
 
+  _isInitializing = true;
+  _initializationPromise = performInitialization();
+  
+  try {
+    await _initializationPromise;
+  } finally {
+    _isInitializing = false;
+    _initializationPromise = null;
+  }
+}
+
+async function performInitialization(): Promise<void> {
   try {
     // Check if tables exist by trying to query them
     const tablesExist = await checkTablesExist();
@@ -41,8 +58,6 @@ export async function initializeDatabase(): Promise<void> {
   } catch (error) {
     console.error('Database initialization error:', error);
     // Don't throw - allow app to continue with degraded functionality
-  } finally {
-    _isInitializing = false;
   }
 }
 

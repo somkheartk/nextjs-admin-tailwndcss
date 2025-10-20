@@ -139,6 +139,10 @@ export async function getMenuItemsForUser(
   userEmail: string
 ): Promise<SelectMenuItem[]> {
   try {
+    // Ensure database is initialized before querying
+    const { initializeDatabase } = await import('./db-init');
+    await initializeDatabase();
+
     // Get user's role assignments
     const userRoleAssignment = await db
       .select()

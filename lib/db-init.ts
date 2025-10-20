@@ -61,7 +61,9 @@ async function checkTablesExist(): Promise<boolean> {
 
 async function checkNeedsSeeding(): Promise<boolean> {
   try {
-    const result = await db.execute(sql`SELECT COUNT(*) as count FROM user_roles`);
+    const result = await db.execute(
+      sql`SELECT COUNT(*) as count FROM user_roles`
+    );
     const count = (result.rows[0] as any)?.count || 0;
     return count === 0;
   } catch (error) {

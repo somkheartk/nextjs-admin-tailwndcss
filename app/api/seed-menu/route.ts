@@ -37,7 +37,7 @@ export async function GET() {
       {
         id: 1,
         label: 'Dashboard',
-        href: '#',
+        href: '/',
         icon: 'Home',
         order: 1,
         isActive: true
@@ -45,7 +45,7 @@ export async function GET() {
       {
         id: 2,
         label: 'Orders',
-        href: '#',
+        href: '/orders',
         icon: 'ShoppingCart',
         order: 2,
         isActive: true
@@ -69,7 +69,7 @@ export async function GET() {
       {
         id: 5,
         label: 'Analytics',
-        href: '#',
+        href: '/analytics',
         icon: 'LineChart',
         order: 5,
         isActive: true

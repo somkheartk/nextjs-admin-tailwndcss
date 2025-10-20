@@ -15,6 +15,7 @@ import {
 import { count, eq, ilike, inArray } from 'drizzle-orm';
 import { asc } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
+import { mockProducts, mockMenuItems, shouldUseMockData } from './mock-data';
 
 // Lazy initialization of database connection
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -59,6 +60,39 @@ export async function getProducts(
   newOffset: number | null;
   totalProducts: number;
 }> {
+  // Use mock data if no database is configured
+  if (shouldUseMockData()) {
+    const allProducts = mockProducts;
+    
+    // Handle search
+    if (search) {
+      const filteredProducts = allProducts.filter((product) =>
+        product.name.toLowerCase().includes(search.toLowerCase())
+      );
+      return {
+        products: filteredProducts,
+        newOffset: null,
+        totalProducts: filteredProducts.length
+      };
+    }
+
+    if (offset === null) {
+      return { products: [], newOffset: null, totalProducts: 0 };
+    }
+
+    // Handle pagination
+    const totalProducts = allProducts.length;
+    const moreProducts = allProducts.slice(offset, offset + 5);
+    const newOffset = offset + 5 < totalProducts ? offset + 5 : null;
+
+    return {
+      products: moreProducts,
+      newOffset,
+      totalProducts
+    };
+  }
+
+  // Original database logic
   // Always search the full table, not per page
   if (search) {
     return {
@@ -88,6 +122,12 @@ export async function getProducts(
 }
 
 export async function deleteProductById(id: number) {
+  // In mock mode, just log the action (no actual deletion)
+  if (shouldUseMockData()) {
+    console.log(`Mock mode: Would delete product with id ${id}`);
+    return;
+  }
+  
   await db.delete(products).where(eq(products.id, id));
 }
 
@@ -138,6 +178,12 @@ export type SelectUserRoleAssignment = typeof userRoleAssignments.$inferSelect;
 export async function getMenuItemsForUser(
   userEmail: string
 ): Promise<SelectMenuItem[]> {
+  // Use mock data if no database is configured
+  if (shouldUseMockData()) {
+    console.log('Using mock menu items (no database configured)');
+    return mockMenuItems.filter((item) => item.isActive);
+  }
+
   try {
     // Ensure database is initialized before querying
     const { initializeDatabase } = await import('./db-init');

@@ -5,11 +5,26 @@ import {
   roleMenuPermissions,
   userRoleAssignments
 } from '@/lib/db';
+import { sql } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    // Check if data already exists
+    const existingRoles = await db.execute(
+      sql`SELECT COUNT(*) as count FROM user_roles`
+    );
+    const rolesCount = (existingRoles.rows[0] as any)?.count || 0;
+
+    if (rolesCount > 0) {
+      return Response.json({
+        message:
+          'Menu and permission data already exists. Database is already initialized.',
+        status: 'already_initialized'
+      });
+    }
+
     // Insert roles
     await db.insert(userRoles).values([
       { id: 1, name: 'admin', description: 'Full access to all features' },
@@ -91,7 +106,8 @@ export async function GET() {
 
     return Response.json({
       message:
-        'Menu and permission data seeded successfully! Remember to assign your user email to a role.'
+        'Menu and permission data seeded successfully! Users will be automatically assigned the "user" role on first login.',
+      status: 'success'
     });
   } catch (error: any) {
     return Response.json(

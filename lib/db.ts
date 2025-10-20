@@ -138,37 +138,87 @@ export type SelectUserRoleAssignment = typeof userRoleAssignments.$inferSelect;
 export async function getMenuItemsForUser(
   userEmail: string
 ): Promise<SelectMenuItem[]> {
-  // Get user's role assignments
-  const userRoleAssignment = await db
-    .select()
-    .from(userRoleAssignments)
-    .where(eq(userRoleAssignments.userEmail, userEmail))
-    .limit(1);
+  try {
+    // Get user's role assignments
+    const userRoleAssignment = await db
+      .select()
+      .from(userRoleAssignments)
+      .where(eq(userRoleAssignments.userEmail, userEmail))
+      .limit(1);
 
-  if (userRoleAssignment.length === 0) {
+    // If user has no role, automatically assign them the 'user' role (id: 3)
+    if (userRoleAssignment.length === 0) {
+      try {
+        await db.insert(userRoleAssignments).values({
+          userEmail,
+          roleId: 3 // Default to 'user' role
+        });
+        console.log(`Auto-assigned user role to ${userEmail}`);
+      } catch (insertError) {
+        console.error('Error auto-assigning role:', insertError);
+        // Return empty menu if role assignment fails
+        return [];
+      }
+
+      // Fetch the newly assigned role
+      const newRoleAssignment = await db
+        .select()
+        .from(userRoleAssignments)
+        .where(eq(userRoleAssignments.userEmail, userEmail))
+        .limit(1);
+
+      if (newRoleAssignment.length === 0) {
+        return [];
+      }
+
+      const roleId = newRoleAssignment[0].roleId;
+
+      // Get menu item IDs for this role
+      const permissions = await db
+        .select()
+        .from(roleMenuPermissions)
+        .where(eq(roleMenuPermissions.roleId, roleId));
+
+      if (permissions.length === 0) {
+        return [];
+      }
+
+      const menuItemIds = permissions.map((p) => p.menuItemId);
+
+      // Get the actual menu items
+      const items = await db
+        .select()
+        .from(menuItems)
+        .where(inArray(menuItems.id, menuItemIds))
+        .orderBy(asc(menuItems.order));
+
+      return items.filter((item) => item.isActive);
+    }
+
+    const roleId = userRoleAssignment[0].roleId;
+
+    // Get menu item IDs for this role
+    const permissions = await db
+      .select()
+      .from(roleMenuPermissions)
+      .where(eq(roleMenuPermissions.roleId, roleId));
+
+    if (permissions.length === 0) {
+      return [];
+    }
+
+    const menuItemIds = permissions.map((p) => p.menuItemId);
+
+    // Get the actual menu items
+    const items = await db
+      .select()
+      .from(menuItems)
+      .where(inArray(menuItems.id, menuItemIds))
+      .orderBy(asc(menuItems.order));
+
+    return items.filter((item) => item.isActive);
+  } catch (error) {
+    console.error('Error fetching menu items:', error);
     return [];
   }
-
-  const roleId = userRoleAssignment[0].roleId;
-
-  // Get menu item IDs for this role
-  const permissions = await db
-    .select()
-    .from(roleMenuPermissions)
-    .where(eq(roleMenuPermissions.roleId, roleId));
-
-  if (permissions.length === 0) {
-    return [];
-  }
-
-  const menuItemIds = permissions.map((p) => p.menuItemId);
-
-  // Get the actual menu items
-  const items = await db
-    .select()
-    .from(menuItems)
-    .where(inArray(menuItems.id, menuItemIds))
-    .orderBy(asc(menuItems.order));
-
-  return items.filter((item) => item.isActive);
 }

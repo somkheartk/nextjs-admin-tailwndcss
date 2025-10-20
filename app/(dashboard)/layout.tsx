@@ -34,12 +34,16 @@ import { NavItem } from './nav-item';
 import { SearchInput } from './search';
 import { auth } from '@/lib/auth';
 import { getMenuItemsForUser, SelectMenuItem } from '@/lib/db';
+import { initializeDatabase } from '@/lib/db-init';
 
 export default async function DashboardLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
+  // Initialize database tables and seed data if needed
+  await initializeDatabase();
+
   const session = await auth();
   const userEmail = session?.user?.email;
 

@@ -46,11 +46,11 @@ ON CONFLICT (name) DO NOTHING;
 
 -- Insert default menu items
 INSERT INTO menu_items (id, label, href, icon, "order", is_active) VALUES
-  (1, 'Dashboard', '#', 'Home', 1, true),
-  (2, 'Orders', '#', 'ShoppingCart', 2, true),
+  (1, 'Dashboard', '/', 'Home', 1, true),
+  (2, 'Orders', '/orders', 'ShoppingCart', 2, true),
   (3, 'Products', '/', 'Package', 3, true),
   (4, 'Customers', '/customers', 'Users2', 4, true),
-  (5, 'Analytics', '#', 'LineChart', 5, true)
+  (5, 'Analytics', '/analytics', 'LineChart', 5, true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Insert role-menu permissions for admin (all menus)

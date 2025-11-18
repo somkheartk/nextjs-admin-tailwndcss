@@ -123,12 +123,6 @@ This is a **production-ready admin dashboard template** built with the latest Ne
 
 Get up and running in minutes! Choose the option that best fits your needs:
 
----
-
-## 🚀 Quick Start
-
-Get up and running in minutes! Choose the option that best fits your needs:
-
 ### Option 1: Mock Data Mode (No Database Required)
 
 **Perfect for**: Frontend development, UI prototyping, learning the codebase
@@ -184,12 +178,6 @@ This mode lets you start developing immediately without any database setup. The 
    - Sample orders and customers
    - All menu items and navigation
    - Full pagination and search functionality
-
-### Option 2: Full Setup with Database
-
-**Perfect for**: Production deployment, testing real data, full-featured development
-
-This mode provides complete functionality with persistent data storage.
 
 ### Option 2: Full Setup with Database
 
